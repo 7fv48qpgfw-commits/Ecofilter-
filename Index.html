@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoFilter – AI와 신소재로 만드는 깨끗한 미래</title>
+<style>
+body {
+  margin: 0;
+  font-family: "Noto Sans KR", sans-serif;
+  background: linear-gradient(120deg, #013220, #00111a);
+  color: #e9f9f1;
+  overflow-x: hidden;
+}
+header {
+  text-align: center;
+  padding: 80px 20px;
+  background: linear-gradient(120deg, #00c896, #007a5e);
+  color: white;
+}
+header h1 { font-size: 2.5em; margin-bottom: 10px; }
+header p { font-size: 1.1em; }
+
+section {
+  padding: 60px 20px;
+  max-width: 900px;
+  margin: auto;
+}
+h2 { color: #00c896; }
+
+button {
+  background: #00c896;
+  color: #fff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.3s;
+}
+button:hover { background: #009b76; }
+
+.result {
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+/* Game Section */
+#gameArea {
+  margin-top: 20px;
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: #00332c;
+  border-radius: 15px;
+  overflow: hidden;
+  border: 2px solid #00c896;
+}
+.plastic, .filter {
+  position: absolute;
+  border-radius: 50%;
+}
+.plastic {
+  width: 30px; height: 30px;
+  background: radial-gradient(circle at 30% 30%, #b4e0ff, #007a5e);
+  animation: fall linear forwards;
+}
+.filter {
+  width: 80px; height: 20px;
+  background: #00c896;
+  bottom: 10px;
+}
+
+/* Animation */
+@keyframes fall {
+  from { top: -40px; }
+  to { top: 400px; }
+}
+
+/* Score display */
+#scoreBoard {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 1.1em;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>EcoFilter 🌿</h1>
+  <p>AI와 신소재로 미세플라스틱을 정화하는 미래형 프로젝트</p>
+</header>
+
+<section id="problem">
+  <h2>문제의식</h2>
+  <p>미세플라스틱은 바다와 하천의 생태계를 위협하고, 인간의 건강에도 악영향을 준다.
+  플라스틱은 자연 분해되지 않기 때문에, 이를 효율적으로 제거할 신소재 기술이 필요하다.</p>
+</section>
+
+<section id="idea">
+  <h2>핵심 아이디어</h2>
+  <p>‘자기회수형 친환경 신소재 필터’는 자성 나노입자와 바이오 기반 고분자로 구성되어 있으며,
+  미세플라스틱을 흡착한 뒤 자석을 이용해 회수할 수 있다.  
+  AI는 흡착 효율이 높은 소재 조합을 예측하고, 필터 구조를 시뮬레이션하여 최적화할 수 있다.</p>
+</section>
+
+<section id="ai">
+  <h2>AI 시뮬레이션</h2>
+  <p>AI가 추천하는 최적의 소재 조합을 확인해보세요.</p>
+  <button onclick="generateResult()">AI 시뮬레이션 실행</button>
+  <div class="result" id="result"></div>
+</section>
+
+<section id="game">
+  <h2>미세플라스틱 잡기 게임</h2>
+  <p>필터를 움직여 떨어지는 미세플라스틱을 최대한 많이 잡으세요!</p>
+  <div id="gameArea">
+    <div id="filter" class="filter"></div>
+  </div>
+  <div id="scoreBoard">점수: <span id="score">0</span></div>
+  <button onclick="startGame()">게임 시작</button>
+</section>
+
+<section id="reflection">
+  <h2>성찰</h2>
+  <p>AI와 신소재공학의 융합을 통해 환경 문제 해결의 가능성을 느꼈습니다.
+  기술이 자연과 조화를 이룰 때 지속 가능한 미래가 가능하다는 점을 배웠습니다.</p>
+</section>
+
+<script>
+function generateResult() {
+  const materials = [
+    "Fe₃O₄ + 키토산", 
+    "TiO₂ + 셀룰로오스", 
+    "ZnO + 알긴산", 
+    "Fe₂O₃ + PLA"
+  ];
+  const eff = (80 + Math.random()*20).toFixed(1);
+  const random = materials[Math.floor(Math.random() * materials.length)];
+  document.getElementById("result").innerText =
+    `AI 추천 소재 조합: ${random} / 예상 흡착 효율: ${eff}%`;
+}
+
+// ---- 게임 기능 ----
+let score = 0;
+let playing = false;
+let interval;
+const gameArea = document.getElementById("gameArea");
+const filter = document.getElementById("filter");
+const scoreText = document.getElementById("score");
+
+let filterX = gameArea.offsetWidth/2 - 40;
+
+// 필터 움직이기
+document.addEventListener("mousemove", e => {
+  const rect = gameArea.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  if (x >= 0 && x <= rect.width) {
+    filterX = x - 40;
+    filter.style.left = filterX + "px";
+  }
+});
+
+function startGame(){
+  if(playing) return;
+  playing = true;
+  score = 0;
+  scoreText.textContent = score;
+  interval = setInterval(createPlastic, 800);
+  setTimeout(() => {
+    clearInterval(interval);
+    playing = false;
+    alert(`게임 종료! 총 점수: ${score}`);
+  }, 20000); // 20초 게임
+}
+
+function createPlastic(){
+  const plastic = document.createElement("div");
+  plastic.classList.add("plastic");
+  plastic.style.left = Math.random() * (gameArea.offsetWidth - 30) + "px";
+  gameArea.appendChild(plastic);
+  const speed = 3 + Math.random()*3;
+  let y = 0;
+
+  const fall = setInterval(()=>{
+    y += speed;
+    plastic.style.top = y + "px";
+
+    // 충돌 감지
+    const filterRect = filter.getBoundingClientRect();
+    const plasticRect = plastic.getBoundingClientRect();
+    if (plasticRect.bottom >= filterRect.top &&
+        plasticRect.left < filterRect.right &&
+        plasticRect.right > filterRect.left) {
+      score++;
+      scoreText.textContent = score;
+      plastic.remove();
+      clearInterval(fall);
+    }
+
+    // 화면 밖으로 나가면 제거
+    if(y > 400){
+      plastic.remove();
+      clearInterval(fall);
+    }
+  }, 16);
+}
+</script>
+
+</body>
+</html>
